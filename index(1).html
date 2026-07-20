@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rotina Inteligente do Lar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink-hot:#ff3ea6;
+    --pink-hot-2:#ff6fc0;
+    --pink-deep:#c2185b;
+    --pink-soft:#ffe1f0;
+    --pink-bg:#fff3f9;
+    --gold:#f3c531;
+    --gold-deep:#d9a611;
+    --plum:#4a0e2e;
+    --plum-light:#8a4d6a;
+    --white:#ffffff;
+    --line:#ffd3e8;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Poppins',sans-serif;
+    background:
+      radial-gradient(circle at 15% 8%, #ffd6ec 0%, transparent 45%),
+      radial-gradient(circle at 90% 90%, #ffe9f5 0%, transparent 40%),
+      linear-gradient(160deg,#ffeaf4 0%, #ffd7ec 55%, #ffc3e2 100%);
+    min-height:100vh;
+    color:var(--plum);
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{ font-family:'Fredoka',sans-serif; }
+
+  .app{
+    max-width:430px;
+    margin:0 auto;
+    min-height:100vh;
+    background:var(--pink-bg);
+    display:flex;
+    flex-direction:column;
+    position:relative;
+    box-shadow:0 30px 60px -20px rgba(194,24,91,0.35);
+  }
+
+  /* ===== TOP BAR ===== */
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px 18px 12px;
+    background:linear-gradient(135deg,var(--pink-hot) 0%, var(--pink-deep) 100%);
+    color:var(--white);
+    position:sticky;
+    top:0;
+    z-index:20;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-family:'Fredoka',sans-serif;
+    font-weight:700;
+    font-size:17px;
+    letter-spacing:.2px;
+  }
+  .brand .ribbon{
+    width:30px;height:30px;border-radius:50%;
+    background:var(--white);
+    display:flex;align-items:center;justify-content:center;
+    font-size:16px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.15);
+  }
+  .points-pill{
+    display:flex;align-items:center;gap:6px;
+    background:rgba(255,255,255,0.22);
+    border:1px solid rgba(255,255,255,0.5);
+    padding:6px 12px;
+    border-radius:999px;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .points-pill .gem{color:var(--gold);}
+
+  /* ===== CONTENT ===== */
+  .content{
+    flex:1;
+    padding:18px 18px 112px;
+  }
+  .view{display:none;animation:fadeIn .25s ease;}
+  .view.active{display:block;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+  /* ===== HERO / GREETING ===== */
+  .hero-card{
+    background:linear-gradient(135deg, var(--pink-hot) 0%, #ff7cc7 60%, var(--gold) 130%);
+    border-radius:22px;
+    padding:20px;
+    color:var(--white);
+    position:relative;
+    overflow:hidden;
+    margin-bottom:16px;
+    box-shadow:0 14px 30px -10px rgba(255,62,166,0.55);
+  }
+  .hero-card::after{
+    content:"✨";
+    position:absolute;
+    right:-6px; top:-10px;
+    font-size:90px;
+    opacity:.18;
+    transform:rotate(12deg);
+  }
+  .hero-top{display:flex; align-items:center; justify-content:space-between; gap:8px;}
+  .hero-name{
+    font-family:'Fredoka',sans-serif;
+    font-weight:700;
+    font-size:22px;
+    display:flex;align-items:center;gap:6px;
+  }
+  .hero-name input{
+    font-family:'Fredoka',sans-serif;
+    font-weight:700;
+    font-size:20px;
+    border:none;
+    border-bottom:2px solid rgba(255,255,255,0.8);
+    background:transparent;
+    color:var(--white);
+    width:110px;
+    outline:none;
+  }
+  .hero-name input::placeholder{color:rgba(255,255,255,0.7);}
+  .edit-btn{
+    background:rgba(255,255,255,0.25);
+    border:none;
+    color:var(--white);
+    width:28px;height:28px;
+    border-radius:50%;
+    font-size:13px;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .hero-date{
+    font-size:12.5px;
+    opacity:.95;
+    margin-top:2px;
+    text-transform:capitalize;
+  }
+
+  .progress-block{margin-top:16px;}
+  .progress-label{
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-size:13px; font-weight:600; margin-bottom:6px;
+  }
+  .progress-label b{font-size:15px;}
+  .progress-track{
+    background:rgba(255,255,255,0.35);
+    height:10px;border-radius:999px;overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:linear-gradient(90deg,var(--gold) 0%, #fff2c4 100%);
+    border-radius:999px;
+    transition:width .4s ease;
+  }
+
+  /* reminder */
+  .reminder-card{
+    background:var(--white);
+    border:1.5px dashed var(--pink-hot-2);
+    border-radius:16px;
+    padding:12px 14px;
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+    margin-bottom:16px;
+    font-size:13px;
+    color:var(--plum-light);
+  }
+  .reminder-card .ico{font-size:18px;}
+  .reminder-card b{color:var(--pink-deep);}
+
+  /* day pills */
+  .day-row{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding-bottom:4px;
+    margin-bottom:16px;
+    scrollbar-width:none;
+  }
+  .day-row::-webkit-scrollbar{display:none;}
+  .day-pill{
+    flex:0 0 auto;
+    padding:9px 14px;
+    border-radius:999px;
+    background:var(--white);
+    border:1.5px solid var(--line);
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--plum-light);
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .day-pill.active{
+    background:linear-gradient(135deg,var(--pink-hot),var(--pink-deep));
+    color:var(--white);
+    border-color:transparent;
+    box-shadow:0 6px 14px -4px rgba(255,62,166,0.6);
+  }
+
+  .section-title{
+    font-family:'Fredoka',sans-serif;
+    font-weight:600;
+    font-size:15px;
+    color:var(--pink-deep);
+    margin:4px 0 10px;
+    display:flex;align-items:center;gap:6px;
+  }
+  .section-title-row{
+    display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;
+  }
+  .section-title-row .section-title{margin:0;}
+  .add-task-btn{
+    background:var(--white);
+    border:1.5px solid var(--pink-hot-2);
+    color:var(--pink-deep);
+    font-weight:700;
+    font-size:12px;
+    padding:7px 13px;
+    border-radius:999px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .add-task-btn:active{background:var(--pink-soft);}
+
+  /* ===== TASK CARD ===== */
+  .task-list{display:flex;flex-direction:column;gap:10px;}
+  .task-card{
+    background:var(--white);
+    border-radius:16px;
+    padding:12px 14px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    box-shadow:0 4px 14px -6px rgba(194,24,91,0.18);
+    transition:transform .15s ease, opacity .15s ease;
+  }
+  .task-card.done{opacity:.55;}
+  .check-circle{
+    flex:0 0 auto;
+    width:30px;height:30px;
+    border-radius:50%;
+    border:2px solid var(--pink-hot-2);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    font-size:14px;
+    color:var(--white);
+    background:var(--white);
+    -webkit-tap-highlight-color:transparent;
+  }
+  .check-circle.checked{
+    background:linear-gradient(135deg,var(--pink-hot),var(--pink-deep));
+    border-color:transparent;
+  }
+  .task-info{flex:1; min-width:0;}
+  .task-title{
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--plum);
+  }
+  .task-title.strike{text-decoration:line-through; color:var(--plum-light);}
+  .task-tags{
+    display:flex;gap:6px;margin-top:5px;flex-wrap:wrap;
+  }
+  .tag{
+    font-size:10.5px;
+    font-weight:600;
+    padding:3px 8px;
+    border-radius:999px;
+    background:var(--pink-soft);
+    color:var(--pink-deep);
+  }
+  .tag.room{background:#fff3d6; color:var(--gold-deep);}
+  .points-chip{
+    flex:0 0 auto;
+    font-size:11.5px;
+    font-weight:700;
+    color:var(--gold-deep);
+    background:#fff7e0;
+    border:1px solid #ffe6a3;
+    padding:4px 9px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+  .delete-btn{
+    flex:0 0 auto;
+    background:none;
+    border:none;
+    font-size:14px;
+    color:#d68aa8;
+    cursor:pointer;
+    padding:4px;
+    opacity:.7;
+    line-height:1;
+  }
+  .delete-btn:active{opacity:1;color:#e0217a;}
+
+  /* filter chips (Tarefas view) */
+  .chip-row{
+    display:flex;gap:8px;overflow-x:auto;margin-bottom:14px;padding-bottom:2px;
+    scrollbar-width:none;
+  }
+  .chip-row::-webkit-scrollbar{display:none;}
+  .chip{
+    flex:0 0 auto;
+    padding:7px 13px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:600;
+    background:var(--white);
+    border:1.5px solid var(--line);
+    color:var(--plum-light);
+    cursor:pointer;
+  }
+  .chip.active{
+    background:var(--plum);
+    color:var(--white);
+    border-color:var(--plum);
+  }
+
+  /* add-task / add-item form */
+  .add-form{
+    background:var(--white);
+    border-radius:16px;
+    padding:14px;
+    margin-bottom:14px;
+    box-shadow:0 4px 14px -6px rgba(194,24,91,0.15);
+  }
+  .add-form label{
+    display:block;font-size:11px;font-weight:700;color:var(--pink-deep);
+    margin:10px 0 4px;text-transform:uppercase;letter-spacing:.4px;
+  }
+  .add-form label:first-child{margin-top:0;}
+  .add-form input[type=text], .add-form input[type=number], .add-form select{
+    width:100%;border:1.5px solid var(--line);border-radius:10px;padding:9px 11px;
+    font-family:'Poppins',sans-serif;font-size:13px;color:var(--plum);outline:none;background:var(--pink-bg);
+  }
+  .add-form input:focus, .add-form select:focus{border-color:var(--pink-hot-2);}
+  .form-row{display:flex;gap:10px;}
+  .form-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
+  .btn-primary{
+    background:linear-gradient(135deg,var(--pink-hot),var(--pink-deep));
+    color:var(--white);border:none;padding:10px 16px;border-radius:12px;
+    font-weight:600;font-size:12.5px;cursor:pointer;font-family:'Poppins',sans-serif;
+  }
+  .btn-secondary{
+    background:var(--white);color:var(--plum-light);border:1.5px solid var(--line);
+    padding:10px 16px;border-radius:12px;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'Poppins',sans-serif;
+  }
+
+  /* day accordion (Rotinas view) */
+  .day-block{
+    background:var(--white);
+    border-radius:16px;
+    margin-bottom:12px;
+    overflow:hidden;
+    box-shadow:0 4px 14px -6px rgba(194,24,91,0.15);
+  }
+  .day-block summary{
+    list-style:none;
+    cursor:pointer;
+    padding:14px 16px;
+    display:flex;justify-content:space-between;align-items:center;
+    font-family:'Fredoka',sans-serif;
+    font-weight:600;
+    color:var(--pink-deep);
+    font-size:14.5px;
+  }
+  .day-block summary::-webkit-details-marker{display:none;}
+  .day-block summary .count-badge{
+    font-family:'Poppins',sans-serif;
+    font-size:11.5px;
+    font-weight:700;
+    background:var(--pink-soft);
+    color:var(--pink-deep);
+    padding:4px 10px;
+    border-radius:999px;
+  }
+  .day-block summary .count-badge.full{
+    background:linear-gradient(135deg,var(--gold),#ffe08a);
+    color:#7a5b00;
+  }
+  .day-block .inner{padding:0 14px 14px;display:flex;flex-direction:column;gap:8px;}
+
+  /* rooms (Ambientes view) */
+  .room-block{
+    background:var(--white);
+    border-radius:16px;
+    margin-bottom:12px;
+    overflow:hidden;
+    box-shadow:0 4px 14px -6px rgba(194,24,91,0.15);
+  }
+  .room-block summary{
+    list-style:none;
+    cursor:pointer;
+    padding:14px 16px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .room-block summary::-webkit-details-marker{display:none;}
+  .room-ico{
+    width:36px;height:36px;border-radius:12px;
+    background:var(--pink-soft);
+    display:flex;align-items:center;justify-content:center;
+    font-size:18px;flex:0 0 auto;
+  }
+  .room-meta{flex:1;}
+  .room-meta .name{font-family:'Fredoka',sans-serif;font-weight:600;font-size:14px;color:var(--plum);}
+  .room-bar-track{
+    background:var(--pink-soft);height:6px;border-radius:999px;margin-top:5px;overflow:hidden;
+  }
+  .room-bar-fill{height:100%;background:linear-gradient(90deg,var(--pink-hot),var(--gold));border-radius:999px;}
+  .room-count{font-size:11.5px;font-weight:700;color:var(--pink-deep);flex:0 0 auto;}
+  .room-block .inner{padding:0 14px 14px 14px; display:flex;flex-direction:column;gap:8px;}
+
+  /* ===== ALIMENTAÇÃO ===== */
+  .segmented{
+    display:flex;background:var(--pink-soft);border-radius:14px;padding:4px;margin-bottom:16px;gap:4px;
+  }
+  .seg-btn{
+    flex:1;text-align:center;padding:9px 6px;border-radius:11px;font-size:12.5px;font-weight:600;
+    color:var(--pink-deep);cursor:pointer;
+  }
+  .seg-btn.active{background:var(--white);box-shadow:0 3px 10px -3px rgba(194,24,91,0.3);}
+
+  .meal-card{
+    background:var(--white);border-radius:16px;padding:14px;margin-bottom:12px;
+    box-shadow:0 4px 14px -6px rgba(194,24,91,0.15);
+  }
+  .meal-head{
+    font-family:'Fredoka',sans-serif;font-weight:600;font-size:13.5px;color:var(--pink-deep);
+    margin-bottom:8px;display:flex;align-items:center;gap:6px;
+  }
+  .meal-input{
+    width:100%;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;
+    font-family:'Poppins',sans-serif;font-size:13px;color:var(--plum);resize:vertical;outline:none;
+    background:var(--pink-bg);
+  }
+  .meal-input:focus{border-color:var(--pink-hot-2);}
+
+  .cat-label{
+    font-family:'Fredoka',sans-serif;font-size:12px;font-weight:600;color:var(--gold-deep);
+    margin:14px 0 8px;padding-left:2px;
+  }
+  .cat-label:first-child{margin-top:0;}
+  .summary-bar{
+    display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;
+    font-size:12px;color:var(--plum-light);font-weight:600;
+  }
+  .link-btn{
+    background:none;border:none;color:var(--pink-deep);font-weight:700;font-size:11.5px;
+    cursor:pointer;text-decoration:underline;font-family:'Poppins',sans-serif;
+  }
+
+  /* ===== PONTOS view ===== */
+  .points-hero{
+    background:linear-gradient(160deg,var(--plum) 0%, #6e1c46 60%, var(--pink-deep) 100%);
+    border-radius:22px;
+    padding:26px 20px;
+    text-align:center;
+    color:var(--white);
+    position:relative;
+    overflow:hidden;
+    margin-bottom:16px;
+  }
+  .points-hero::before{
+    content:"💎";
+    position:absolute; left:-14px; bottom:-20px;
+    font-size:100px; opacity:.12; transform:rotate(-15deg);
+  }
+  .points-hero .big-num{
+    font-family:'Fredoka',sans-serif;
+    font-weight:700;
+    font-size:44px;
+    line-height:1;
+  }
+  .points-hero .cap{font-size:12px; opacity:.85; letter-spacing:1.5px; text-transform:uppercase; margin-top:4px;}
+  .level-tag{
+    display:inline-flex;align-items:center;gap:6px;
+    margin-top:14px;
+    background:rgba(255,255,255,0.15);
+    border:1px solid rgba(255,255,255,0.35);
+    padding:7px 14px;
+    border-radius:999px;
+    font-size:13px;font-weight:600;
+  }
+  .level-progress-wrap{margin-top:16px; text-align:left;}
+  .level-progress-wrap .lbl{font-size:11px; opacity:.85; display:flex; justify-content:space-between; margin-bottom:5px;}
+  .level-track{background:rgba(255,255,255,0.25); height:8px;border-radius:999px;overflow:hidden;}
+  .level-fill{height:100%;background:linear-gradient(90deg,var(--gold),#fff3c4);border-radius:999px;}
+
+  .badge-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+    margin-bottom:18px;
+  }
+  .badge-card{
+    background:var(--white);
+    border-radius:16px;
+    padding:14px 12px;
+    text-align:center;
+    box-shadow:0 4px 14px -6px rgba(194,24,91,0.15);
+    opacity:.4;
+    filter:grayscale(.6);
+  }
+  .badge-card.unlocked{opacity:1; filter:none;}
+  .badge-card .b-ico{font-size:26px;}
+  .badge-card .b-name{font-family:'Fredoka',sans-serif;font-weight:600;font-size:12.5px;margin-top:6px;color:var(--plum);}
+  .badge-card .b-desc{font-size:10.5px;color:var(--plum-light);margin-top:2px;}
+
+  .reset-btn{
+    width:100%;
+    padding:13px;
+    border-radius:14px;
+    border:1.5px solid var(--pink-hot-2);
+    background:var(--white);
+    color:var(--pink-deep);
+    font-family:'Poppins',sans-serif;
+    font-weight:600;
+    font-size:13px;
+    cursor:pointer;
+    margin-top:4px;
+  }
+  .reset-btn:active{background:var(--pink-soft);}
+
+  .empty-state{
+    text-align:center;
+    padding:40px 20px;
+    color:var(--plum-light);
+  }
+  .empty-state .e-ico{font-size:34px;margin-bottom:8px;}
+
+  /* ===== BOTTOM NAV ===== */
+  .bottom-nav{
+    position:sticky;
+    bottom:0;
+    background:var(--white);
+    border-top:1px solid var(--line);
+    display:flex;
+    justify-content:space-around;
+    padding:7px 2px 9px;
+    z-index:30;
+  }
+  .nav-btn{
+    background:none;border:none;
+    display:flex;flex-direction:column;align-items:center;gap:2px;
+    font-family:'Poppins',sans-serif;
+    font-size:9px;
+    font-weight:600;
+    color:var(--plum-light);
+    cursor:pointer;
+    padding:3px 2px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .nav-btn .n-ico{
+    font-size:16px;
+    width:26px;height:26px;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:50%;
+  }
+  .nav-btn.active{color:var(--pink-deep);}
+  .nav-btn.active .n-ico{
+    background:linear-gradient(135deg,var(--pink-hot),var(--pink-deep));
+    color:var(--white);
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="topbar">
+    <div class="brand"><span class="ribbon">🎀</span> Rotina do Lar</div>
+    <div class="points-pill" onclick="goTo('pontos')"><span class="gem">💎</span><span id="topPoints">0 pts</span></div>
+  </div>
+
+  <div class="content">
+
+    <!-- ===== INÍCIO ===== -->
+    <section class="view active" id="view-inicio">
+      <div class="hero-card">
+        <div class="hero-top">
+          <div class="hero-name">
+            <span>Olá, </span><span id="nameDisplay">Gabi</span><span>! ✨</span>
+          </div>
+          <button class="edit-btn" onclick="toggleNameEdit()">✎</button>
+        </div>
+        <div id="nameEditWrap" style="display:none;margin-top:6px;">
+          <input id="nameInput" type="text" maxlength="16" placeholder="Seu nome">
+        </div>
+        <div class="hero-date" id="heroDate"></div>
+
+        <div class="progress-block">
+          <div class="progress-label">
+            <span id="progressTitle">Tarefas de hoje</span>
+            <b id="progressCount">0 de 0</b>
+          </div>
+          <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <div class="reminder-card">
+        <span class="ico">💡</span>
+        <div><b>Lembrete do dia:</b> <span id="reminderText"></span></div>
+      </div>
+
+      <div class="day-row" id="dayRowInicio"></div>
+
+      <div class="section-title" id="taskListTitle">✅ Tarefas</div>
+      <div class="task-list" id="inicioTaskList"></div>
+    </section>
+
+    <!-- ===== ROTINAS ===== -->
+    <section class="view" id="view-rotinas">
+      <div class="section-title">📅 Rotina pronta da semana</div>
+      <div id="rotinasWrap"></div>
+    </section>
+
+    <!-- ===== TAREFAS ===== -->
+    <section class="view" id="view-tarefas">
+      <div class="section-title-row">
+        <div class="section-title">✅ Todas as tarefas</div>
+        <button class="add-task-btn" onclick="toggleAddTaskForm()">+ Nova</button>
+      </div>
+
+      <div class="add-form" id="addTaskFormWrap" style="display:none">
+        <label>Nome da tarefa</label>
+        <input id="newTaskTitle" type="text" placeholder="Ex: Organizar a estante" maxlength="60">
+        <div class="form-row">
+          <div style="flex:1">
+            <label>Dia</label>
+            <select id="newTaskDay"></select>
+          </div>
+          <div style="flex:1">
+            <label>Ambiente</label>
+            <select id="newTaskRoom"></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div style="flex:1">
+            <label>Pontos</label>
+            <input id="newTaskPoints" type="number" min="1" max="50" value="5">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-secondary" onclick="toggleAddTaskForm()">Cancelar</button>
+          <button class="btn-primary" onclick="addTask()">Adicionar ✨</button>
+        </div>
+      </div>
+
+      <div class="chip-row" id="chipRow"></div>
+      <div class="task-list" id="tarefasTaskList"></div>
+    </section>
+
+    <!-- ===== AMBIENTES ===== -->
+    <section class="view" id="view-ambientes">
+      <div class="section-title">🚪 Organização por ambiente</div>
+      <div id="ambientesWrap"></div>
+    </section>
+
+    <!-- ===== ALIMENTAÇÃO ===== -->
+    <section class="view" id="view-cardapio">
+      <div class="section-title">🍽️ Alimentação</div>
+
+      <div class="segmented" id="foodSegmented">
+        <div class="seg-btn active" data-seg="cardapio" onclick="selectFoodTab('cardapio')">🍽️ Cardápio</div>
+        <div class="seg-btn" data-seg="compras" onclick="selectFoodTab('compras')">🛒 Lista de compras</div>
+      </div>
+
+      <div id="foodTabCardapio">
+        <div class="day-row" id="dayRowCardapio"></div>
+        <div id="mealList"></div>
+      </div>
+
+      <div id="foodTabCompras" style="display:none">
+        <div class="add-form">
+          <label>Item</label>
+          <input id="newItemName" type="text" placeholder="Ex: Tomate" maxlength="40">
+          <div class="form-row">
+            <div style="flex:1">
+              <label>Categoria</label>
+              <select id="newItemCategory">
+                <option value="Hortifrúti">🥦 Hortifrúti</option>
+                <option value="Proteínas">🍗 Proteínas</option>
+                <option value="Laticínios">🧀 Laticínios</option>
+                <option value="Padaria">🍞 Padaria</option>
+                <option value="Mercearia">🥫 Mercearia</option>
+                <option value="Limpeza">🧴 Limpeza</option>
+                <option value="Outros">🛒 Outros</option>
+              </select>
+            </div>
+            <div style="flex:0 0 90px">
+              <label>Qtd</label>
+              <input id="newItemQty" type="text" placeholder="1kg">
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn-primary" style="width:100%" onclick="addShoppingItem()">Adicionar à lista 🛒</button>
+          </div>
+        </div>
+
+        <div class="summary-bar" id="shoppingSummary"></div>
+        <div class="task-list" id="shoppingList"></div>
+      </div>
+    </section>
+
+    <!-- ===== PONTOS ===== -->
+    <section class="view" id="view-pontos">
+      <div class="points-hero">
+        <div class="big-num" id="pontosBigNum">0</div>
+        <div class="cap">pontos glam acumulados</div>
+        <div class="level-tag"><span id="levelIcon">🌸</span> <span id="levelName">Aprendiz Glamourosa</span></div>
+        <div class="level-progress-wrap">
+          <div class="lbl"><span id="levelCur">Nível atual</span><span id="levelNext">Próximo nível</span></div>
+          <div class="level-track"><div class="level-fill" id="levelFill" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <div class="section-title">🏆 Conquistas</div>
+      <div class="badge-grid" id="badgeGrid"></div>
+
+      <button class="reset-btn" onclick="resetWeek()">🔄 Reiniciar checklist da semana</button>
+    </section>
+
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn active" data-view="inicio" onclick="goTo('inicio')"><span class="n-ico">🏠</span>INÍCIO</button>
+    <button class="nav-btn" data-view="rotinas" onclick="goTo('rotinas')"><span class="n-ico">📅</span>ROTINAS</button>
+    <button class="nav-btn" data-view="tarefas" onclick="goTo('tarefas')"><span class="n-ico">✅</span>TAREFAS</button>
+    <button class="nav-btn" data-view="ambientes" onclick="goTo('ambientes')"><span class="n-ico">🚪</span>AMBIENTES</button>
+    <button class="nav-btn" data-view="cardapio" onclick="goTo('cardapio')"><span class="n-ico">🍽️</span>CARDÁPIO</button>
+    <button class="nav-btn" data-view="pontos" onclick="goTo('pontos')"><span class="n-ico">💎</span>PONTOS</button>
+  </div>
+</div>
+
+<script>
+/* ================= DATA ================= */
+const DAYS = [
+  {key:'dom', label:'Domingo', short:'Dom'},
+  {key:'seg', label:'Segunda-feira', short:'Seg'},
+  {key:'ter', label:'Terça-feira', short:'Ter'},
+  {key:'qua', label:'Quarta-feira', short:'Qua'},
+  {key:'qui', label:'Quinta-feira', short:'Qui'},
+  {key:'sex', label:'Sexta-feira', short:'Sex'},
+  {key:'sab', label:'Sábado', short:'Sáb'},
+];
+
+const ROOMS = {
+  'Cozinha': '🍳',
+  'Sala': '🛋️',
+  'Quarto': '🛏️',
+  'Banheiro': '🛁',
+  'Área de Serviço': '🧺',
+  'Geral': '✨'
+};
+
+const MEAL_TYPES = [
+  {key:'cafe',   label:'Café da manhã', icon:'☕'},
+  {key:'almoco', label:'Almoço',        icon:'🍽️'},
+  {key:'jantar', label:'Jantar',        icon:'🌙'},
+  {key:'lanche', label:'Lanche',        icon:'🍎'},
+];
+
+const CATEGORIES = {
+  'Hortifrúti':'🥦','Proteínas':'🍗','Laticínios':'🧀','Padaria':'🍞',
+  'Mercearia':'🥫','Limpeza':'🧴','Outros':'🛒'
+};
+
+const DEFAULT_TASKS = [
+  {id:'d1', day:'dom', room:'Geral', title:'Planejar a semana', points:5},
+  {id:'d2', day:'dom', room:'Quarto', title:'Trocar a roupa de cama', points:10},
+  {id:'d3', day:'dom', room:'Sala', title:'Regar as plantas', points:5},
+
+  {id:'s1', day:'seg', room:'Cozinha', title:'Lavar a louça do dia', points:10},
+  {id:'s2', day:'seg', room:'Cozinha', title:'Limpar a bancada da cozinha', points:5},
+  {id:'s3', day:'seg', room:'Quarto', title:'Organizar os sapatos', points:5},
+
+  {id:'t1', day:'ter', room:'Sala', title:'Varrer ou aspirar a sala', points:10},
+  {id:'t2', day:'ter', room:'Banheiro', title:'Limpar os espelhos', points:5},
+  {id:'t3', day:'ter', room:'Sala', title:'Tirar o pó dos móveis', points:5},
+
+  {id:'q1', day:'qua', room:'Banheiro', title:'Limpar o banheiro completo', points:15},
+  {id:'q2', day:'qua', room:'Área de Serviço', title:'Lavar uma leva de roupa', points:10},
+  {id:'q3', day:'qua', room:'Banheiro', title:'Organizar a pia do banheiro', points:5},
+
+  {id:'qi1', day:'qui', room:'Cozinha', title:'Organizar a geladeira', points:10},
+  {id:'qi2', day:'qui', room:'Cozinha', title:'Passar pano no chão da cozinha', points:10},
+  {id:'qi3', day:'qui', room:'Área de Serviço', title:'Guardar roupa lavada', points:5},
+
+  {id:'se1', day:'sex', room:'Banheiro', title:'Trocar as toalhas', points:5},
+  {id:'se2', day:'sex', room:'Área de Serviço', title:'Organizar a área de serviço', points:10},
+  {id:'se3', day:'sex', room:'Geral', title:'Tirar o lixo de casa', points:5},
+
+  {id:'sa1', day:'sab', room:'Sala', title:'Faxina leve na sala', points:10},
+  {id:'sa2', day:'sab', room:'Quarto', title:'Organizar um armário', points:10},
+  {id:'sa3', day:'sab', room:'Geral', title:'Momento glam de descanso 💅', points:5},
+];
+
+const REMINDERS = {
+  dom:'Domingo é dia de planejar com estilo — sua semana já começa organizada! 💖',
+  seg:'Comece a semana leve: uma tarefinha de cada vez já é suficiente! ✨',
+  ter:'Terça produtiva: capriche nos detalhes e brilhe! 👛',
+  qua:'Já é quarta! Metade da semana com a casa em ordem, você merece um aplauso 👏',
+  qui:'Quinta-feira: um empurrãozinho a mais e o fim de semana chega leve 💫',
+  sex:'Sextou! Deixe tudo prontinho pra curtir o fim de semana sem culpa 🎀',
+  sab:'Sábado é dia de cuidar de você também — organização com leveza 💅'
+};
+
+const LEVELS = [
+  {min:0,   name:'Aprendiz Glamourosa',      icon:'🌸'},
+  {min:50,  name:'Organizadora Fashionista', icon:'👛'},
+  {min:150, name:'Diva da Arrumação',        icon:'💎'},
+  {min:300, name:'Rainha do Lar',            icon:'👑'},
+  {min:500, name:'Lenda da Casa Perfeita',   icon:'✨'},
+];
+
+const BADGES = [
+  {id:'first',  icon:'💗', name:'Primeiro Check',   desc:'Complete a 1ª tarefa', cond:(s)=>Object.values(s.completed).filter(Boolean).length>=1},
+  {id:'century',icon:'💰', name:'100 Pontos',       desc:'Alcance 100 pontos',   cond:(s)=>s.totalPoints>=100},
+  {id:'allweek',icon:'👑', name:'Semana Perfeita',  desc:'Complete tudo na semana', cond:(s)=>Object.values(s.completed).filter(Boolean).length>=s.tasks.length && s.tasks.length>0},
+  {id:'queen',  icon:'💎', name:'Rainha do Lar',    desc:'Alcance 300 pontos',   cond:(s)=>s.totalPoints>=300},
+];
+
+/* ================= STATE ================= */
+let state = { name:'Gabi', completed:{}, totalPoints:0, tasks:null, menu:null, shopping:null };
+let currentView = 'inicio';
+let selectedDay = DAYS[new Date().getDay()].key;
+let selectedFoodDay = DAYS[new Date().getDay()].key;
+let selectedFilter = 'todas';
+
+const STORAGE_KEY = 'barbie-rotina-state';
+
+async function loadState(){
+  try{
+    const res = await window.storage.get(STORAGE_KEY, false);
+    if(res && res.value){
+      const parsed = JSON.parse(res.value);
+      state = Object.assign(state, parsed);
+    }
+  }catch(e){ /* primeira vez usando o app, sem estado salvo ainda */ }
+  ensureDefaults();
+  populateStaticSelects();
+  renderAll();
+}
+
+async function saveState(){
+  try{
+    await window.storage.set(STORAGE_KEY, JSON.stringify(state), false);
+  }catch(e){ console.error('Erro ao salvar', e); }
+}
+
+function ensureDefaults(){
+  if(!Array.isArray(state.tasks) || state.tasks.length===0){
+    state.tasks = JSON.parse(JSON.stringify(DEFAULT_TASKS));
+  }
+  if(!state.menu) state.menu = {};
+  DAYS.forEach(d=>{
+    if(!state.menu[d.key]) state.menu[d.key] = {};
+    MEAL_TYPES.forEach(m=>{
+      if(typeof state.menu[d.key][m.key] !== 'string') state.menu[d.key][m.key] = '';
+    });
+  });
+  if(!Array.isArray(state.shopping)) state.shopping = [];
+}
+
+function populateStaticSelects(){
+  const daySel = document.getElementById('newTaskDay');
+  daySel.innerHTML = DAYS.map(d=>`<option value="${d.key}">${d.label}</option>`).join('');
+  const roomSel = document.getElementById('newTaskRoom');
+  roomSel.innerHTML = Object.keys(ROOMS).map(r=>`<option value="${r}">${ROOMS[r]} ${r}</option>`).join('');
+}
+
+/* ================= HELPERS ================= */
+function tasksForDay(day){ return state.tasks.filter(t=>t.day===day); }
+function isDone(id){ return !!state.completed[id]; }
+function escapeHtml(str){
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function toggleTask(id){
+  const task = state.tasks.find(t=>t.id===id);
+  if(!task) return;
+  if(isDone(id)){
+    state.completed[id] = false;
+    state.totalPoints = Math.max(0, state.totalPoints - task.points);
+  }else{
+    state.completed[id] = true;
+    state.totalPoints += task.points;
+  }
+  saveState();
+  renderAll();
+}
+
+function deleteTask(id){
+  if(!confirm('Remover esta tarefa da rotina? 🗑')) return;
+  state.tasks = state.tasks.filter(t=>t.id!==id);
+  delete state.completed[id];
+  saveState();
+  renderAll();
+}
+
+function toggleAddTaskForm(){
+  const w = document.getElementById('addTaskFormWrap');
+  w.style.display = (w.style.display==='none' || !w.style.display) ? 'block' : 'none';
+}
+
+function addTask(){
+  const title = document.getElementById('newTaskTitle').value.trim();
+  if(!title){ alert('Digite o nome da tarefa 💕'); return; }
+  const day = document.getElementById('newTaskDay').value;
+  const room = document.getElementById('newTaskRoom').value;
+  let points = parseInt(document.getElementById('newTaskPoints').value, 10);
+  if(isNaN(points) || points<1) points = 5;
+  const id = 'custom-' + Date.now();
+  state.tasks.push({id, day, room, title, points, custom:true});
+  document.getElementById('newTaskTitle').value = '';
+  document.getElementById('newTaskPoints').value = 5;
+  toggleAddTaskForm();
+  saveState();
+  renderAll();
+}
+
+function getLevel(points){
+  let cur = LEVELS[0];
+  for(const l of LEVELS){ if(points>=l.min) cur=l; }
+  const idx = LEVELS.indexOf(cur);
+  const next = LEVELS[idx+1] || null;
+  return {cur, next};
+}
+
+/* ================= RENDER: task card ================= */
+function taskCardHTML(t){
+  const done = isDone(t.id);
+  return `
+  <div class="task-card ${done?'done':''}">
+    <div class="check-circle ${done?'checked':''}" onclick="toggleTask('${t.id}')">${done?'✓':''}</div>
+    <div class="task-info">
+      <div class="task-title ${done?'strike':''}">${escapeHtml(t.title)}</div>
+      <div class="task-tags">
+        <span class="tag">${DAYS.find(d=>d.key===t.day).short}</span>
+        <span class="tag room">${ROOMS[t.room]||'✨'} ${t.room}</span>
+      </div>
+    </div>
+    <div class="points-chip">+${t.points} pts</div>
+    <button class="delete-btn" onclick="deleteTask('${t.id}')" title="Remover tarefa">🗑</button>
+  </div>`;
+}
+
+/* ================= RENDER: Início ================= */
+function renderInicio(){
+  document.getElementById('nameDisplay').textContent = state.name || 'Gabi';
+  document.getElementById('nameInput').value = state.name || 'Gabi';
+
+  const todayKey = DAYS[new Date().getDay()].key;
+  const dateStr = new Intl.DateTimeFormat('pt-BR',{weekday:'long', day:'numeric', month:'long'}).format(new Date());
+  document.getElementById('heroDate').textContent = dateStr;
+
+  const dayRow = document.getElementById('dayRowInicio');
+  dayRow.innerHTML = DAYS.map(d=>`
+    <div class="day-pill ${selectedDay===d.key?'active':''}" onclick="selectDay('${d.key}')">${d.short}</div>
+  `).join('');
+
+  const dayTasks = tasksForDay(selectedDay);
+  const doneCount = dayTasks.filter(t=>isDone(t.id)).length;
+  const pct = dayTasks.length ? Math.round((doneCount/dayTasks.length)*100) : 0;
+
+  document.getElementById('progressTitle').textContent = selectedDay===todayKey ? 'Tarefas de hoje' : 'Tarefas de ' + DAYS.find(d=>d.key===selectedDay).label.toLowerCase();
+  document.getElementById('progressCount').textContent = `${doneCount} de ${dayTasks.length}`;
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  document.getElementById('reminderText').textContent = REMINDERS[selectedDay];
+  document.getElementById('taskListTitle').textContent = `✅ Tarefas de ${DAYS.find(d=>d.key===selectedDay).short}`;
+
+  const list = document.getElementById('inicioTaskList');
+  list.innerHTML = dayTasks.length ? dayTasks.map(taskCardHTML).join('') : `
+    <div class="empty-state"><div class="e-ico">🎀</div>Nenhuma tarefa cadastrada para este dia.</div>`;
+
+  document.getElementById('topPoints').textContent = state.totalPoints + ' pts';
+}
+
+function selectDay(day){ selectedDay = day; renderInicio(); }
+
+/* ================= RENDER: Rotinas (semana) ================= */
+function renderRotinas(){
+  const wrap = document.getElementById('rotinasWrap');
+  wrap.innerHTML = DAYS.map(d=>{
+    const dTasks = tasksForDay(d.key);
+    const done = dTasks.filter(t=>isDone(t.id)).length;
+    const full = done===dTasks.length && dTasks.length>0;
+    return `
+    <details class="day-block" ${d.key===selectedDay?'open':''}>
+      <summary>
+        <span>${d.label}</span>
+        <span class="count-badge ${full?'full':''}">${done}/${dTasks.length}</span>
+      </summary>
+      <div class="inner">
+        ${dTasks.length ? dTasks.map(taskCardHTML).join('') : '<div class="empty-state" style="padding:16px;"><div class="e-ico">🎀</div>Sem tarefas neste dia.</div>'}
+      </div>
+    </details>`;
+  }).join('');
+}
+
+/* ================= RENDER: Tarefas ================= */
+function renderTarefas(){
+  const chipRow = document.getElementById('chipRow');
+  const filters = [{key:'todas', label:'Todas'}, ...DAYS.map(d=>({key:d.key, label:d.short}))];
+  chipRow.innerHTML = filters.map(f=>`
+    <div class="chip ${selectedFilter===f.key?'active':''}" onclick="selectFilter('${f.key}')">${f.label}</div>
+  `).join('');
+
+  const list = document.getElementById('tarefasTaskList');
+  const filtered = selectedFilter==='todas' ? state.tasks : state.tasks.filter(t=>t.day===selectedFilter);
+  list.innerHTML = filtered.length ? filtered.map(taskCardHTML).join('') : `
+    <div class="empty-state"><div class="e-ico">🎀</div>Nenhuma tarefa por aqui ainda.</div>`;
+}
+function selectFilter(f){ selectedFilter = f; renderTarefas(); }
+
+/* ================= RENDER: Ambientes ================= */
+function renderAmbientes(){
+  const wrap = document.getElementById('ambientesWrap');
+  const roomNames = Object.keys(ROOMS);
+  wrap.innerHTML = roomNames.map(room=>{
+    const rTasks = state.tasks.filter(t=>t.room===room);
+    const done = rTasks.filter(t=>isDone(t.id)).length;
+    const pct = rTasks.length ? Math.round((done/rTasks.length)*100) : 0;
+    return `
+    <details class="room-block">
+      <summary>
+        <div class="room-ico">${ROOMS[room]}</div>
+        <div class="room-meta">
+          <div class="name">${room}</div>
+          <div class="room-bar-track"><div class="room-bar-fill" style="width:${pct}%"></div></div>
+        </div>
+        <div class="room-count">${done}/${rTasks.length}</div>
+      </summary>
+      <div class="inner">
+        ${rTasks.length ? rTasks.map(taskCardHTML).join('') : '<div class="empty-state" style="padding:16px;"><div class="e-ico">🎀</div>Sem tarefas neste ambiente.</div>'}
+      </div>
+    </details>`;
+  }).join('');
+}
+
+/* ================= RENDER: Alimentação — Cardápio ================= */
+function renderCardapio(){
+  const dayRow = document.getElementById('dayRowCardapio');
+  dayRow.innerHTML = DAYS.map(d=>`
+    <div class="day-pill ${selectedFoodDay===d.key?'active':''}" onclick="selectFoodDay('${d.key}')">${d.short}</div>
+  `).join('');
+
+  const mealList = document.getElementById('mealList');
+  mealList.innerHTML = MEAL_TYPES.map(m=>{
+    const val = (state.menu[selectedFoodDay] && state.menu[selectedFoodDay][m.key]) || '';
+    return `
+    <div class="meal-card">
+      <div class="meal-head"><span>${m.icon}</span> ${m.label}</div>
+      <textarea class="meal-input" rows="2" placeholder="O que vai ter?" onblur="saveMeal('${selectedFoodDay}','${m.key}', this.value)">${escapeHtml(val)}</textarea>
+    </div>`;
+  }).join('');
+}
+function selectFoodDay(day){ selectedFoodDay = day; renderCardapio(); }
+function saveMeal(day, mealKey, value){
+  if(!state.menu[day]) state.menu[day] = {};
+  state.menu[day][mealKey] = value;
+  saveState();
+}
+function selectFoodTab(tab){
+  document.querySelectorAll('#foodSegmented .seg-btn').forEach(b=>b.classList.toggle('active', b.dataset.seg===tab));
+  document.getElementById('foodTabCardapio').style.display = tab==='cardapio' ? 'block' : 'none';
+  document.getElementById('foodTabCompras').style.display = tab==='compras' ? 'block' : 'none';
+}
+
+/* ================= RENDER: Alimentação — Lista de compras ================= */
+function shoppingItemHTML(i){
+  return `
+  <div class="task-card ${i.checked?'done':''}">
+    <div class="check-circle ${i.checked?'checked':''}" onclick="toggleShoppingItem('${i.id}')">${i.checked?'✓':''}</div>
+    <div class="task-info">
+      <div class="task-title ${i.checked?'strike':''}">${escapeHtml(i.name)}${i.qty?(' · '+escapeHtml(i.qty)):''}</div>
+    </div>
+    <button class="delete-btn" onclick="deleteShoppingItem('${i.id}')" title="Remover item">🗑</button>
+  </div>`;
+}
+
+function renderShopping(){
+  const summary = document.getElementById('shoppingSummary');
+  if(state.shopping.length){
+    const bought = state.shopping.filter(i=>i.checked).length;
+    summary.innerHTML = `<span>${bought} de ${state.shopping.length} comprados</span><button class="link-btn" onclick="clearBought()">Limpar comprados</button>`;
+  }else{
+    summary.innerHTML = '';
+  }
+
+  const list = document.getElementById('shoppingList');
+  if(!state.shopping.length){
+    list.innerHTML = `<div class="empty-state"><div class="e-ico">🛒</div>Sua lista de compras está vazia. Adicione itens acima!</div>`;
+    return;
+  }
+  let html = '';
+  Object.keys(CATEGORIES).forEach(cat=>{
+    const items = state.shopping.filter(i=>i.category===cat);
+    if(!items.length) return;
+    html += `<div class="cat-label">${CATEGORIES[cat]} ${cat}</div>`;
+    html += items.map(shoppingItemHTML).join('');
+  });
+  list.innerHTML = html;
+}
+
+function addShoppingItem(){
+  const name = document.getElementById('newItemName').value.trim();
+  if(!name){ alert('Digite o nome do item 💕'); return; }
+  const category = document.getElementById('newItemCategory').value;
+  const qty = document.getElementById('newItemQty').value.trim();
+  state.shopping.push({id:'item-'+Date.now(), name, category, qty, checked:false});
+  document.getElementById('newItemName').value = '';
+  document.getElementById('newItemQty').value = '';
+  saveState();
+  renderShopping();
+}
+function toggleShoppingItem(id){
+  const item = state.shopping.find(i=>i.id===id);
+  if(!item) return;
+  item.checked = !item.checked;
+  saveState();
+  renderShopping();
+}
+function deleteShoppingItem(id){
+  state.shopping = state.shopping.filter(i=>i.id!==id);
+  saveState();
+  renderShopping();
+}
+function clearBought(){
+  state.shopping = state.shopping.filter(i=>!i.checked);
+  saveState();
+  renderShopping();
+}
+
+/* ================= RENDER: Pontos ================= */
+function renderPontos(){
+  document.getElementById('pontosBigNum').textContent = state.totalPoints;
+  const {cur, next} = getLevel(state.totalPoints);
+  document.getElementById('levelIcon').textContent = cur.icon;
+  document.getElementById('levelName').textContent = cur.name;
+  document.getElementById('levelCur').textContent = cur.name;
+  document.getElementById('levelNext').textContent = next ? `Próx: ${next.name} (${next.min} pts)` : 'Nível máximo! 👑';
+  let pct = 100;
+  if(next){
+    pct = Math.round(((state.totalPoints - cur.min) / (next.min - cur.min)) * 100);
+  }
+  document.getElementById('levelFill').style.width = Math.min(100,Math.max(0,pct)) + '%';
+
+  const grid = document.getElementById('badgeGrid');
+  grid.innerHTML = BADGES.map(b=>{
+    const unlocked = b.cond(state);
+    return `
+    <div class="badge-card ${unlocked?'unlocked':''}">
+      <div class="b-ico">${b.icon}</div>
+      <div class="b-name">${b.name}</div>
+      <div class="b-desc">${b.desc}</div>
+    </div>`;
+  }).join('');
+}
+
+function resetWeek(){
+  if(confirm('Reiniciar o checklist da semana? Seus pontos conquistados continuam guardados 💎')){
+    state.completed = {};
+    saveState();
+    renderAll();
+  }
+}
+
+/* ================= NAV ================= */
+function goTo(view){
+  currentView = view;
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+view).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.view===view));
+  renderAll();
+  document.querySelector('.content').scrollTo(0,0);
+  window.scrollTo(0,0);
+}
+
+/* ================= NAME EDIT ================= */
+function toggleNameEdit(){
+  const wrap = document.getElementById('nameEditWrap');
+  const isOpen = wrap.style.display !== 'none';
+  wrap.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen){
+    const input = document.getElementById('nameInput');
+    input.focus();
+    input.select();
+  }
+}
+document.getElementById('nameInput').addEventListener('keydown', (e)=>{
+  if(e.key==='Enter') saveName();
+});
+document.getElementById('nameInput').addEventListener('blur', saveName);
+function saveName(){
+  const val = document.getElementById('nameInput').value.trim();
+  if(val){
+    state.name = val;
+    saveState();
+  }
+  document.getElementById('nameEditWrap').style.display='none';
+  renderInicio();
+}
+
+/* ================= RENDER ALL ================= */
+function renderAll(){
+  renderInicio();
+  renderRotinas();
+  renderTarefas();
+  renderAmbientes();
+  renderCardapio();
+  renderShopping();
+  renderPontos();
+}
+
+loadState();
+</script>
+</body>
+</html>
